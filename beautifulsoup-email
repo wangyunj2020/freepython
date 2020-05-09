@@ -1,0 +1,63 @@
+import requests
+from bs4 import BeautifulSoup
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
+import schedule
+import time
+
+#爬取热门菜单
+def  getdata():
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'}
+
+    res_foods = requests.get(url='http://www.xiachufang.com/explore/',headers=headers)
+    bs_foods = BeautifulSoup(res_foods.text,'html.parser')
+    list_foods = bs_foods.find_all('div',class_='info pure-u')
+
+    list = []
+
+    for food in list_foods:
+        tag_a = food.find('a')
+        name = tag_a.text[17:-13]
+        URL = 'http://www.xiachufang.com'+tag_a['href']
+        tag_p = food.find('p',class_='ing ellipsis')
+        ingredients = tag_p.text[1:-1]
+        list.append([name,URL,ingredients])
+    return list
+
+
+account = ''
+password = ''
+receiver = input('请输入收件人的邮箱：')
+
+def send_email(list):
+    mailhost='smtp.qq.com'
+    qqmail = smtplib.SMTP()
+    qqmail.connect(mailhost,25)
+    qqmail.login(account,password)
+    content= '亲爱的，今天的菜单是：'+str(list)
+    message = MIMEText(content, 'plain', 'utf-8')
+    subject = '今日菜单'
+    message['Subject'] = Header(subject, 'utf-8')
+    try:
+        qqmail.sendmail(account, receiver, message.as_string())
+        print ('邮件发送成功')
+    except:
+        print ('邮件发送失败')
+    qqmail.quit()
+
+list=getdata()
+send_email(list)
+
+'''
+def job():
+    print('开始执行第一任务')
+    list=getdata()
+    send_email(list)
+    print('任务完成')
+schedule.every().day.at("09:20").do(job)
+while True:
+    schedule.run_pending()
+    time.sleep(1)
+'''
