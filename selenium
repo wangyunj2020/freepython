@@ -1,0 +1,39 @@
+from selenium import webdriver # 从selenium库中调用webdriver模块
+import time # 调用time模块
+from bs4 import BeautifulSoup
+
+from selenium.webdriver.chrome.options import Options # 从options模块中调用Options类
+chrome_options = Options() # 实例化Option对象
+chrome_options.add_argument('--headless') # 把Chrome浏览器设置为静默模式
+driver = webdriver.Chrome(options = chrome_options) # 设置引擎为Chrome，在后台默默运行
+
+
+driver.get('https://book.qidian.com/info/1017290695#Catalog') # 访问页面
+time.sleep(2) # 暂停两秒，等待浏览器缓冲
+# pagesource=driver.page_source
+# vollist=BeautifulSoup(pagesource,'html.parser')
+# items1=vollist.find_all('div',class_='volume')
+# wangzhi=items1[1].find_all('li')
+# for xiaowz in wangzhi:
+#     a=xiaowz.find('a')
+#     print(a['href'])
+
+mulus=driver.find_elements_by_class_name('volume')
+abc=mulus[1]
+wangzhi=abc.find_elements_by_tag_name('li')
+for xiaowz in wangzhi:
+    name=xiaowz.find_element_by_tag_name('a')
+    wz1=name.get_attribute('href')
+
+    print('名称：%s\n网址：%s\n'%(name.text,wz1))
+
+driver.close()
+
+
+
+# items1=vollist.find_all('div',class_='volume')
+# wangzhi=items1[1].find_all('li')
+# for xiaowz in wangzhi:
+#     a=xiaowz.find('a')
+#
+#     print(a['href'],a.text)
