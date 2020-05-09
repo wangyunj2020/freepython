@@ -1,0 +1,60 @@
+import requests
+from bs4 import BeautifulSoup
+import schedule
+import smtplib
+import time
+from email.mime.text import MIMEText
+from email.utils import formataddr
+my_sender = ''  # 发件人邮箱账号
+my_pass = ''  # 发件人邮箱密码
+my_user1 = ''  # 收件人邮箱账号，我这边发送给自己
+
+
+
+
+def getdata():
+    headers={'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'}
+    url='http://www.weather.com.cn/weather/101190401.shtml'
+    res=requests.get(url,headers=headers)
+    res.encoding='utf-8'
+    tianqi=BeautifulSoup(res.text,'html.parser')
+    itemtq=tianqi.find('p',class_='wea')
+    tem1 = tianqi.find('p', class_='tem')
+    mrtq = '苏州今日天气：' + itemtq.text + ',' + tem1.text
+    return mrtq
+
+def mail(mrtq):
+    ret = True
+    try:
+        msg = MIMEText(mrtq,'plain', 'utf-8')
+        msg['From'] = formataddr(["大哥", my_sender])  # 括号里的对应发件人邮箱昵称、发件人邮箱账号
+        msg['To'] = formataddr(["小弟", my_user])  # 括号里的对应收件人邮箱昵称、收件人邮箱账号
+        msg['Subject'] = "每天问候"  # 邮件的主题，也可以说是标题
+
+        server = smtplib.SMTP_SSL("smtp.qq.com", 465)  # 发件人邮箱中的SMTP服务器，端口是25
+        server.login(my_sender, my_pass)  # 括号中对应的是发件人邮箱账号、邮箱密码
+        server.sendmail(my_sender, [my_user1, my_user2,my_user3,my_user4,], msg.as_string())  # 括号中对应的是发件人邮箱账号、收件人邮箱账号、发送邮件
+        server.quit()  # 关闭连接
+    except Exception:  # 如果 try 中的语句没有执行，则会执行下面的 ret=False
+        ret = False
+    return ret
+
+    ret = mail()
+    if ret:
+        print("邮件发送成功")
+    else:
+        print("邮件发送失败")
+
+mrtq = getdata()
+mail(mrtq)
+# def job():
+#     print('开始一次任务')
+#     mrtq = getdata()
+#     mail(mrtq)
+#     print('任务完成')
+#
+# schedule.every().day.at("20:46").do(job)
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)
+
