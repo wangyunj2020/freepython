@@ -1,0 +1,33 @@
+from selenium import webdriver
+import time
+driver=webdriver.Chrome()
+
+driver.get('https://y.qq.com/n/yqq/song/000xdZuV2LcQ19.html') # 访问页面
+time.sleep(2)
+
+button=driver.find_element_by_class_name('js_get_more_hot')
+button.click()
+time.sleep(2)
+
+comments = driver.find_element_by_class_name('js_hot_list').find_elements_by_class_name('js_cmt_li') # 使用class_name找到评论
+#精彩评论
+print(len(comments)) # 打印获取到的评论个数
+for comment in comments: # 循环
+    sweet = comment.find_element_by_tag_name('p') # 找到评论
+    date= comment.find_element_by_tag_name('span')
+    author = comment.find_element_by_tag_name('h4')
+    print('评论：%s\n 时间：%s\n 作者：%s\n' % (sweet.text,date.text,author.text))  # 打印评论
+
+# comments1 = driver.find_element_by_class_name('js_all_list').find_elements_by_class_name('js_cmt_li')
+# #最新评论
+# print(len(comments1))
+# for comment in comments1:
+#     gdsweet = comment.find_element_by_tag_name('p')
+#     date= comment.find_element_by_tag_name('span')
+#
+#     author = comment.find_element_by_tag_name('h4')
+#     print('评论：%s\n 时间：%s\n 作者：%s\n' % (gdsweet.text,date.text,author.text))  # 打印评论
+
+
+
+driver.close() # 关闭浏览器
