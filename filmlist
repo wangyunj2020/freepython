@@ -1,0 +1,72 @@
+import requests,time
+from bs4 import BeautifulSoup
+import smtplib
+import time
+from email.mime.text import MIMEText
+from email.utils import formataddr
+my_sender = ''  # 发件人邮箱账号
+my_pass = ''  # 发件人邮箱密码
+my_user0 = ''
+
+
+# from gevent import monkey
+# monkey.patch_all()
+# import gevent,time
+# from gevent.queue import Queue
+# start=time.time()
+list_all=[]
+start=time.time()
+url='http://www.mtime.com/top/tv/top100/index-2.html'
+headers={'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
+        'Referer':'http://www.mtime.com/top/tv/top100/',
+         'Cookie':'_userCode_=202052221483601; _userIdentity_=202052221485994; DefaultCity-CookieKey=627; DefaultDistrict-CookieKey=0; _tt_=6A0D5B7802C889B92ADDF4B9DA5330DC; Hm_lvt_6dd1e3b818c756974fb222f0eae5512e=1588428109,1588460637; __utma=196937584.392826187.1588428110.1588463461.1588470412.4; __utmz=196937584.1588428110.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); waf_cookie=14c7c021-c3bd-4e2a998ff60044124738825863a8e64fcc61; Hm_lpvt_6dd1e3b818c756974fb222f0eae5512e=1588470414; __utmc=196937584; _ydclearance=e11e8c3d48a0aef51a6ece4e-dd11-4511-ae6f-98e6a44ceddd-1588477611; __utmb=196937584.4.10.1588470412; __utmt=1; __utmt_~1=1'
+         }
+def getdata():
+    for i in range(2,10):
+        res=requests.get(headers=headers,url='http://www.mtime.com/top/tv/top100/index-{}.html'.format(str(i)))
+        #print(res.status_code)
+        soup=BeautifulSoup(res.text,'html.parser')
+        items=soup.find('div',class_='top_list')
+        list=items.find_all('li')
+        for film in list:
+            name=film.find('h2').text
+            abc = film.find_all('p')
+            daoyan=abc[0].text.strip()
+            zhuyan=abc[1].text.strip()
+            jianjie=film.find('p',class_='mt3')
+            if jianjie != None :
+                #print(name,daoyan,zhuyan,jianjie.text)
+                list100='电影名'+name+'导演'+daoyan+'主演'+zhuyan+'简介'+ jianjie.text
+                list_all.append(list100)
+                mess=str(list_all)
+
+            else:
+                #print(name,daoyan,zhuyan,None)
+                list100 = '电影名' + name + '导演' + daoyan + '主演' + zhuyan+'--------'
+                list_all.append(list100)
+                mess = str(list_all)
+    return mess
+
+
+def mail(mess):
+    msg = MIMEText(mess,'plain', 'utf-8')
+    msg['From'] = formataddr(["大哥", my_sender])  # 括号里的对应发件人邮箱昵称、发件人邮箱账号
+    msg['To'] = formataddr(["小弟", my_user1])  # 括号里的对应收件人邮箱昵称、收件人邮箱账号
+    msg['Subject'] = "每日推荐"  # 邮件的主题，也可以说是标题
+
+    server = smtplib.SMTP_SSL("smtp.qq.com", 465)  # 发件人邮箱中的SMTP服务器，端口是25
+    server.login(my_sender, my_pass)  # 括号中对应的是发件人邮箱账号、邮箱密码
+    server.sendmail(my_sender, [my_user0,my_user1,my_user2,my_user3,my_user4,my_user5,my_user6,my_user7,], msg.as_string())  # 括号中对应的是发件人邮箱账号、收件人邮箱账号、发送邮件
+    server.quit()  # 关闭连接
+
+
+mess= getdata()
+mail(mess)
+
+
+
+
+end=time.time()
+print(end-start)
+
+
