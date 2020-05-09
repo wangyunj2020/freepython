@@ -1,0 +1,43 @@
+import requests
+from bs4 import BeautifulSoup
+
+headers={'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
+        'Referer':'https://book.douban.com'}
+
+url='https://book.douban.com/top250'
+for i in range(10):
+    params={'start':25*i}
+    res=requests.get(url,params=params,headers=headers)
+    print(res.status_code)
+    soup = BeautifulSoup(res.text, 'html.parser')
+    items = soup.find('div', class_='indent')
+    list = items.find_all('tr',class_='item')
+    for film in list:
+        # name = film.find_all('a')
+        # shuming=name[1].text.strip()
+        #shuming=name[1]['title']
+        # wangzhi=name[1]['href']
+
+        #name=film.select("td div a")[0]
+        #name=film.div.a.string
+        shuming=film.find('div',class_='pl2').find('a')
+        #name=shuming.find('a')
+        wangzhi=shuming['href']
+        zuozhe = film.find('p',class_='pl').text
+        pingfen = film.find('span', class_='rating_nums').text
+        tuijianyu = film.find('span', class_='inq')
+        if tuijianyu != None:
+
+            print(shuming['title'], wangzhi, zuozhe, tuijianyu.text, pingfen)
+        else:
+            print(shuming['title'], wangzhi, zuozhe, pingfen)
+
+
+
+    #print(name.get_text().strip(),wangzhi,zuozhe,tuijianyu,pingfen)
+        # if jianjie != None:
+        #     print(name, daoyan, zhuyan, jianjie.text)
+        #     mess=name+'\n'+daoyan+'\n'+zhuyan+'\n'+jianjie.text+'\n'+'-----------'+'\n'
+        # else:
+        #     print(name, daoyan, zhuyan, None)
+        #     mess=name+'\n'+daoyan+'\n'+zhuyan+'\n'+'-----------'+'\n'
