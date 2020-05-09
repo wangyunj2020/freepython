@@ -1,0 +1,34 @@
+from selenium import webdriver # 从selenium库中调用webdriver模块
+import time # 调用time模块
+from bs4 import BeautifulSoup
+
+# from selenium.webdriver.chrome.options import Options # 从options模块中调用Options类
+# chrome_options = Options() # 实例化Option对象
+# chrome_options.add_argument('--headless') # 把Chrome浏览器设置为静默模式
+# driver = webdriver.Chrome(options = chrome_options) # 设置引擎为Chrome，在后台默默运行
+
+driver = webdriver.Chrome()
+
+driver.get('https://wordpress-edu-3autumn.localprod.oc.forchange.cn/wp-login.php')
+time.sleep(2)
+user=driver.find_element_by_id('user_login')
+user.send_keys('')
+mima = driver.find_element_by_id('user_pass')
+mima.send_keys('')
+button=driver.find_element_by_id('wp-submit')
+button.click()
+time.sleep(1)
+#driver.close()
+
+url_1 = 'https://wordpress-edu-3autumn.localprod.oc.forchange.cn/all-about-the-future_03/'
+#我们想要评论的文章网址。
+driver.get(url_1)
+time.sleep(2)
+pinglun=driver.find_element_by_id('comment')
+pinglun.send_keys('selenium真牛cha ')
+button=driver.find_element_by_id('submit')
+button.click()
+time.sleep(1)
+#driver.close()
+
+
