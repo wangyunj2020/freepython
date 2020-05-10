@@ -9,7 +9,8 @@ driver = webdriver.Chrome(options = chrome_options) # 设置引擎为Chrome，�
 
 
 driver.get('https://book.qidian.com/info/1017290695#Catalog') # 访问页面
-time.sleep(2) # 暂停两秒，等待浏览器缓冲
+driver.implicitly_wait(50)
+#time.sleep(2) # 暂停两秒，等待浏览器缓冲
 # pagesource=driver.page_source
 # vollist=BeautifulSoup(pagesource,'html.parser')
 # items1=vollist.find_all('div',class_='volume')
@@ -24,7 +25,6 @@ wangzhi=abc.find_elements_by_tag_name('li')
 for xiaowz in wangzhi:
     name=xiaowz.find_element_by_tag_name('a')
     wz1=name.get_attribute('href')
-
     print('名称：%s\n网址：%s\n'%(name.text,wz1))
 
 driver.close()
@@ -35,5 +35,4 @@ driver.close()
 # wangzhi=items1[1].find_all('li')
 # for xiaowz in wangzhi:
 #     a=xiaowz.find('a')
-#
 #     print(a['href'],a.text)
