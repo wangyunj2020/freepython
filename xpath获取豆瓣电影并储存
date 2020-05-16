@@ -1,0 +1,71 @@
+import requests,lxml
+from lxml import etree
+import csv
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
+
+header = {
+      'Referer': 'https://movie.douban.com/top250?start=1&filter=',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:46.0) Gecko/20100101 Firefox/46.0'}
+
+url='https://movie.douban.com/top250?start={}&filter='
+
+def getdata(url):
+    response = requests.get(url,headers=header)
+    response.encoding='utf-8'
+    return response.text
+
+def getitem(source):
+    html=etree.HTML(source)
+    filmlist=html.xpath('//div[@class="whol"]')
+    list_all = []
+    for film in filmlist:
+        filmdict={}
+        title=film.xpath('div[@class="hd"]/a/span[@class="title"][1]/text()')[0]
+        link=film.xpath('div[@class="hd"]/a/@href')[0]
+        pingfen=film.xpath('div[@class="bd"]/div[@class="star"]/span[@class="rating_num"]/text()')[0]
+        #daoyan = film.xpath('div[@class="bd"]/p[@class=""]/text()')
+        pinglun=film.xpath('div[@class="bd"]/p/span[@class="inq"]/text()')
+
+        if pinglun:
+            pinglun=pinglun[0]
+        else:
+            pinglun=''
+
+        filmdict['title']=title
+        filmdict['link'] =link
+        filmdict['pingfen'] =pingfen
+        filmdict['pinglun'] =pinglun
+        list_all.append(filmdict)
+        #print(list_all)
+    return list_all
+        #print(title + '\n' + link + '\n' + pingfen + '\n' + pinglun)
+        #print(title,link,pingfen,pinglun)
+        #list_all.append(title+'\n'+link+'\n'+pingfen+'\n'+pinglun)
+
+
+def writedata(list_all):
+    with open('douban2.csv','w',newline="",encoding='utf-8') as file:
+
+        writer=csv.DictWriter(file,fieldnames=['title', 'link', 'pingfen', 'pinglun'])
+        writer.writeheader()
+        for each in list_all:
+            writer.writerow(each)
+
+if __name__ == '__main__':
+    list_all=[]
+    for i in range(10):
+        pagelink=url.format(i*25)
+        source=getdata(pagelink)
+        list_all+=getitem(source)
+    writedata(list_all)
+    print(list_all)
+
+
+
+
+
+
+# source=getdata()
+# getitem(source)
