@@ -1,0 +1,96 @@
+import requests,lxml
+from lxml import etree
+import time
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
+
+header = {
+      'Referer': 'https://www.tuniu.com',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:46.0) Gecko/20100101 Firefox/46.0',
+    'cookie':'tuniu_partner=MTE2OSwwLCwwN2FhZTE4ZWQxMTAxMTI5MWRkNjNjMjkyZWI0NTJkZQ%3D%3D; tuniuuser_citycode=MTYzNw%3D%3D; p_phone_400=4007-999-999; p_phone_level=0; p_global_phone=%2B0086-25-8685-9999; _tacau=MCwyZjI1MGIwYi0zZjhmLTdjOGMtMzE2NS1hYjFhNzEyNWRiZjgs; _tact=MzdmOTAyM2ItMmYxNS00ZWRiLTJiYzQtOTc4YWE1OWNjYWZk; _tacz2=taccsr%3Dwww.baidu.com%7Ctacccn%3D%28referral%29%7Ctaccmd%3D%28none%29%7Ctaccct%3D%28none%29%7Ctaccrt%3D%28none%29; PageSwitch=1%2C213612736; _ga=GA1.2.1358323287.1589610927; _gid=GA1.2.1638667073.1589610927; MOBILE_APP_SETTING_OPEN-153=1; MOBILE_APP_SETTING_STATE-153=CLOSE; _pzfxuvpc=1589610926923%7C1232475919110099813%7C2%7C1589610970876%7C1%7C%7C1252106818975960391; tuniuuser_ip_citycode=MTYzNw==; __utmz=1.1589611045.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); Hm_lvt_51d49a7cda10d5dd86537755f081cc02=1589614008; _csrf=Q-2z5gIzf8Sc0ng2R0lBhbopLDO5QpEV; _tacc=1; __utma=1.1358323287.1589610927.1589617220.1589636736.3; __utmc=1; _gat=1; _taca=1589610909139.1589636720105.1589643077022.5; _tacb=M2ZmOGExNWYtOTNlYS0yNDM5LWY0M2YtMmY3NmNlNzg4NTRh'
+    }
+
+url='https://www.tuniu.com/guide/d-haikou-902/youji/r/{}/'
+
+def getpage(url):
+    response = requests.get(headers=header,url=url)
+    #print(response.status_code)
+    response.encoding='utf-8'
+    res=response.text
+    return res
+list_all = []
+
+def getdata(res):
+    html=etree.HTML(res)
+    lists=html.xpath('//div[@class="module"]/a')
+    for i in lists:
+        title = i.xpath('div[@class="detail"]/h3/text()')[0]
+        jianjie = i.xpath('div[@class="detail"]/div[@class="content"]/text()')[0]
+        link = i.xpath('@href')[0]
+        reallink = 'https://www.tuniu.com' + link
+        #print(title,jianjie,reallink)
+        mess = '标题：' + title + '\n' + '简介：' + jianjie + '\n' + '链接：' + reallink
+        list_all.append(mess)
+    return '\n\n'.join(list_all)
+
+account = input('请输入你的邮箱：')
+password = input('请输入你的邮箱密码：')
+receiver = input('请输入收件人：')
+
+def send_email(list):
+    mailhost = 'smtp.qq.com'
+    qqmail = smtplib.SMTP()
+    qqmail.connect(mailhost, 25)
+    qqmail.login(account, password)
+    content = '亲爱的，今天的推荐景点是：' +'\n'+ list
+    message = MIMEText(content, 'plain', 'utf-8')
+    subject = '今日推荐'
+    message['Subject'] = Header(subject, 'utf-8')
+    try:
+        qqmail.sendmail(account, receiver, message.as_string())
+        print('邮件发送成功')
+    except:
+        print('邮件发送失败')
+    qqmail.quit()
+
+
+if __name__ == '__main__':
+
+    for i in range(4):
+        pagelink=url.format(i+1)
+        source=getpage(pagelink)
+        #time.sleep(1)
+        mess100=getdata(source)
+        #time.sleep(1)
+    send_email(mess100)
+
+
+以下是之前的代码，爬取三亚的，后面全部重新优化了代码。
+# mess = getdata()
+# send_email(mess)
+
+# for i in range(10):
+    #     title=html.xpath('//div[@class="detail"]/h3/text()')[i]
+    #     jianjie = html.xpath('//div[@class="detail"]/div[@class="content"]/text()')[i]
+    #     link=html.xpath('//div[@class="module"]/a/@href')[i]
+    #     reallink='https://www.tuniu.com'+link
+    #     # print(title)
+    #     # print(jianjie)
+    #     # print(reallink)
+    #     mess = '标题：'+title + '\n' +'简介：'+ jianjie + '\n' + '链接：'+reallink
+    #     list_all.append(mess)
+    #     #print(list_all)
+    # return '\n\n'.join(list_all)
+    
+
+
+
+
+
+
+
+
+
+
+
